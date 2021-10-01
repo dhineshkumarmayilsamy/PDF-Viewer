@@ -1,0 +1,52 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<script type="text/javascript">
+    function openFile() {
+        $.ajax({
+            method: 'GET',
+            url: '@Url.Action("openfile", "Home", new { path = "SampleFile\\sample.pdf" })',
+            responseType: "text",
+            data: {}
+        }).done(function (data, statusText, xhdr) {
+            debugger;
+            var arrBuffer = base64ToArrayBuffer(data);
+
+            var newBlob = new Blob([arrBuffer], { type: "application/pdf" });
+
+            // For IE
+            if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                window.navigator.msSaveOrOpenBlob(newBlob);
+                return;
+            }
+
+            // For other browsers
+            var data = window.URL.createObjectURL(newBlob);
+            window.open(data, "_blank")
+
+            setTimeout(function () {
+                URL.revokeObjectURL(data);
+            }, 0);
+
+         }).fail(function (xhdr, statusText, errorText) {
+
+        });
+    }
+
+    function base64ToArrayBuffer(data) {
+        var binaryString = window.atob(data);
+        var binaryLen = binaryString.length;
+        var bytes = new Uint8Array(binaryLen);
+        for (var i = 0; i < binaryLen; i++) {
+            var ascii = binaryString.charCodeAt(i);
+            bytes[i] = ascii;
+        }
+        return bytes;
+    };
+
+</script>
+<div class="row">
+    <div class="col-md-12">
+        <h2>Open PDF in new tab from blob object</h2> <a href="#" onclick="openFile()">Click here to Open PDF</a>
+    </div>
+</div>
